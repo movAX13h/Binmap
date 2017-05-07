@@ -1,2 +1,39 @@
-# Binmap
+# ![logo](https://cloud.githubusercontent.com/assets/1974959/25785795/2718aaf2-3389-11e7-9078-fbf5b20801bf.png) Binmap
+
 A tool that helps to analyse and document binary data file formats.
+
+## Screenshots
+
+![Binmap start screen](https://cloud.githubusercontent.com/assets/1974959/25785729/f80b0ab2-3387-11e7-8a06-2a2b3fe750a1.png)
+Binmap: start screen
+
+![Binmap unformatted data](https://cloud.githubusercontent.com/assets/1974959/25785754/6fac491e-3388-11e7-9d53-cf7eb44e84da.png)
+Binmap: unformatted data
+
+![Binmap formatted and commented data](https://cloud.githubusercontent.com/assets/1974959/25785775/c1e0a766-3388-11e7-8e21-2af0f97a7925.png)
+Binmap: data formatted and commented
+
+## How it works and what it does
+
+Drop any file into Binmap to load its data. Binmap shows all bytes in hex format by default. The format of each byte can be changed by selecting single bytes or ranges and clicking the respective format button. Line-breaks can be entered by hitting the ENTER key and can be removed again with the BACKSPACE key. Each section can be commented.
+
+Binmap saves all modifications to a .binmap file which also contains the data file name. If a .binmap file exists, Binmap loads and applies it right after the new data file is loaded. In addition, .binmap files can be double-clicked or dropped into Binmap to load the data file and immediately apply the formatting.
+
+[![Binmap 1.0 usage demo](http://img.youtube.com/vi/-Wx9N8A53AM/0.jpg)](http://www.youtube.com/watch?v=-Wx9N8A53AM "Binmap 1.0 usage demo")
+
+Binmap 1.0 usage demo on YouTube: http://www.youtube.com/watch?v=-Wx9N8A53AM
+## Source Code
+
+Binmap is a .NET Windows application using XNA/SharpDX (Visual Studio Community 2015 solution) for fast rendering. The dll overkill feels a little weird but I wanted to see how it performs for UIs.
+The font in use is called [Pixel Operator](http://www.dafont.com/de/pixel-operator.font) and should be installed for compiling.
+
+## Status
+
+Binmap is currently in development (2017-05-08). Consider this repo a personal backup of my work on this project.
+Feel free to clone and compile the tool if you want to try it. A download link will be added here when I feel that the program has reached a certain state.
+
+### Known Issues
+
+ - TextInput text range selection (mouse and keyboard) not implemented
+ - Scrollbar track clicks not implemented
+ - List item range selection does not work as intended across multiple pages (scrolling after first and before second selection)
