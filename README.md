@@ -1,17 +1,21 @@
-# ![logo](https://cloud.githubusercontent.com/assets/1974959/25785795/2718aaf2-3389-11e7-9078-fbf5b20801bf.png) Binmap
+# ![Binmap Logo](https://cloud.githubusercontent.com/assets/1974959/25785795/2718aaf2-3389-11e7-9078-fbf5b20801bf.png) Binmap
 
 A tool that helps to analyse and document binary data file formats.
 
 ## Screenshots
 
+Binmap start screen:
+
 ![Binmap start screen](https://cloud.githubusercontent.com/assets/1974959/25785729/f80b0ab2-3387-11e7-8a06-2a2b3fe750a1.png)
-Binmap: start screen
+
+Binmap, data loaded, unformatted:
 
 ![Binmap unformatted data](https://cloud.githubusercontent.com/assets/1974959/25785754/6fac491e-3388-11e7-9d53-cf7eb44e84da.png)
-Binmap: unformatted data
+
+Binmap, data formatted and commented:
 
 ![Binmap formatted and commented data](https://cloud.githubusercontent.com/assets/1974959/25785775/c1e0a766-3388-11e7-8e21-2af0f97a7925.png)
-Binmap: data formatted and commented
+
 
 ## How it works and what it does
 
