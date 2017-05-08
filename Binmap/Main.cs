@@ -45,7 +45,7 @@ namespace Binmap
             if (focusedControl != null) focusedControl.Focused = true;
         }
 
-        public static string Version = "1.0";
+        public static string Version = "1.1";
 
         Keys[] prevPressed;
         GraphicsDeviceManager graphics;
@@ -73,7 +73,6 @@ namespace Binmap
             //Window.IsBorderless = true;
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += Window_ClientSizeChanged;
-            
         }
 
         protected override void Initialize()
@@ -144,6 +143,8 @@ namespace Binmap
 
         protected override void Update(GameTime gameTime)
         {
+            if (!IsActive) return;
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             {
                 Exit();

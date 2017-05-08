@@ -14,7 +14,7 @@ namespace Binmap.Controls
         private List<Bin> bins;
         private List<BinListItem> items;
         private SortedList<int,Bin> selection;
-        private BinListItem lastSelectedItem;
+        private Bin lastSelectedBin;
 
         public Point itemSize { get; private set; } = new Point(20);
         public Point ItemSize
@@ -185,21 +185,21 @@ namespace Binmap.Controls
         {
             Main.SetFocus(this);
 
-            if (lastSelectedItem != null && Main.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
+            if (lastSelectedBin != null && Main.KeyboardState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift))
             {
-                int start = Math.Min(lastSelectedItem.ID, item.ID);
-                int end =   Math.Max(lastSelectedItem.ID, item.ID);
+                int start = Math.Min(lastSelectedBin.Offset, item.Bin.Offset);
+                int end =   Math.Max(lastSelectedBin.Offset, item.Bin.Offset);
 
                 for (int i = start; i <= end; i++)
                 {
-                    BinListItem rangeItem = items[i];
-                    if (!selection.ContainsKey(rangeItem.Bin.Offset)) selection.Add(rangeItem.Bin.Offset, rangeItem.Bin);
+                    Bin rangeItem = bins[i];
+                    if (!selection.ContainsKey(rangeItem.Offset)) selection.Add(rangeItem.Offset, rangeItem);
                 }
 
                 if (end - start > 0) Layout();
             }
 
-            lastSelectedItem = item;
+            lastSelectedBin = item.Bin;
         }
 
 
@@ -241,7 +241,7 @@ namespace Binmap.Controls
             // clear selection
             if (MouseIsOver && Main.MouseState.RightButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
             {
-                lastSelectedItem = null;
+                lastSelectedBin = null;
                 selection.Clear();
                 Layout();
             }
@@ -253,7 +253,7 @@ namespace Binmap.Controls
                 else if (!item.Selected && selection.ContainsKey(item.Bin.Offset))
                 {
                     selection.Remove(item.Bin.Offset);
-                    lastSelectedItem = null;
+                    lastSelectedBin = null;
                 }
             }
         }
@@ -302,7 +302,7 @@ namespace Binmap.Controls
         {
             bins.Clear();
             dirty = true;
-            lastSelectedItem = null;
+            lastSelectedBin = null;
             selection.Clear();
             scrollbar.ScrollTo(0);
         }

@@ -28,16 +28,23 @@ Binmap saves all modifications to a .binmap file which also contains the data fi
 Binmap 1.0 usage demo on YouTube: http://www.youtube.com/watch?v=-Wx9N8A53AM
 ## Source Code
 
-Binmap is a .NET Windows application using XNA/SharpDX (Visual Studio Community 2015 solution) for fast rendering. The dll overkill feels a little weird but I wanted to see how it performs for UIs.
+Binmap is a .NET application using XNA/MonoGame/SharpDX (Visual Studio Community 2015 solution) for fast rendering on the GPU. The dll overkill feels a little weird but I wanted to see how it performs for UIs.
 The font in use is called [Pixel Operator](http://www.dafont.com/de/pixel-operator.font) and should be installed for compiling.
 
 ## Status
-
-Binmap is currently in development (2017-05-08). Consider this repo a personal backup of my work on this project.
+Binmap is currently in development. Consider this repo a personal backup of my work on this project.
 Feel free to clone and compile the tool if you want to try it. A download link will be added here when I feel that the program has reached a certain state.
 
-### Known Issues
+### Soon
+ - TextInput text range selection (mouse and keyboard)
+ - Scrollbar track click
+ - view for multiple bytes combined as int, float, double, ...
 
- - TextInput text range selection (mouse and keyboard) not implemented
- - Scrollbar track clicks not implemented
- - List item range selection does not work as intended across multiple pages (scrolling after first and before second selection)
+### Changelog 
+ - v1.1 - 2017-05-09 
+   - fixed window focus problem allowing click through other windows
+   - fixed range selection in combination with scrolling
+   
+ - v1.0 - 2017-05-08 
+   - github release
+ 

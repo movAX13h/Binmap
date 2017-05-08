@@ -21,7 +21,6 @@ namespace Binmap.Screens
         private Button largeButton;
         private Button saveButton;
 
-
         private string statusText = string.Empty;
         private string newStatusText = string.Empty;
         private float statusVis = 0;

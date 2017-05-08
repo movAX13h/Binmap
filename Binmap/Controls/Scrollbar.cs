@@ -14,6 +14,7 @@ namespace Binmap.Controls
         private IScrollbarTarget target;
         private int lastDragY = -1000;
         private int lastScrollWheelValue;
+        float lastButtonScrollTime = 0;
 
         public Scrollbar(IScrollbarTarget target) : base(0, 0, 20, 20, Main.BorderColor)
         {
@@ -78,15 +79,13 @@ namespace Binmap.Controls
             Layout();
         }
 
-        private void scroll(int delta)
+        private void scrollPosition(int delta)
         {
             ScrollPosition += delta;
             ScrollPosition = Math.Min(Math.Max(0, target.MaxScrollValue - target.NumVisible), Math.Max(0, ScrollPosition));
             target.OnScroll(ScrollPosition);
             Layout();
         }
-
-        float lastButtonScrollTime = 0;
 
         public override void Update(float time, float dTime)
         {
@@ -97,13 +96,13 @@ namespace Binmap.Controls
             {
                 if (buttonA.MouseIsDown)
                 {
-                    scroll(-target.ScrollStepSize);
+                    scrollPosition(-target.ScrollStepSize);
                     lastButtonScrollTime = time;
                 }
 
                 if (buttonB.MouseIsDown)
                 {
-                    scroll(target.ScrollStepSize);
+                    scrollPosition(target.ScrollStepSize);
                     lastButtonScrollTime = time;
                 }
             }
@@ -125,7 +124,7 @@ namespace Binmap.Controls
             }
             else if (Main.MouseState.ScrollWheelValue != lastScrollWheelValue)
             {
-                scroll(target.ScrollStepSize * Math.Sign(lastScrollWheelValue - Main.MouseState.ScrollWheelValue));
+                scrollPosition(target.ScrollStepSize * Math.Sign(lastScrollWheelValue - Main.MouseState.ScrollWheelValue));
                 lastScrollWheelValue = Main.MouseState.ScrollWheelValue;
             }
         }
