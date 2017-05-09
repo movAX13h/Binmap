@@ -45,7 +45,7 @@ namespace Binmap
             if (focusedControl != null) focusedControl.Focused = true;
         }
 
-        public static string Version = "1.1";
+        public static string Version = "1.2";
 
         Keys[] prevPressed;
         GraphicsDeviceManager graphics;
@@ -61,10 +61,11 @@ namespace Binmap
             Window.Title = "Binmap " + Version;
 
             Forms.Form frm = (Forms.Form)Forms.Form.FromHandle(Window.Handle);
+            //frm.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             frm.AllowDrop = true;
             frm.DragEnter += new Forms.DragEventHandler(windowDragEnter);
             frm.DragDrop += new Forms.DragEventHandler(windowDragDrop);
-
+            
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
@@ -73,7 +74,7 @@ namespace Binmap
             //Window.IsBorderless = true;
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += Window_ClientSizeChanged;
-            
+
         }
 
         protected override void Initialize()

@@ -43,6 +43,10 @@ Feel free to clone and compile the tool if you want to try it. A download link w
  - view for multiple bytes combined as int, float, double, ...
 
 ### Changelog 
+ - v1.2 - 2017-05-10
+   - CTRL+C to copy selected bytes in the selected format and comma-separated to clipboard
+   - comment color from first byte in row (item that causes the line break)
+
  - v1.1 - 2017-05-09 
    - added byte and range info on mouse over
    - fixed window focus problem allowing click through other windows

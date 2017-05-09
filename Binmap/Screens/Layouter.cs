@@ -56,7 +56,7 @@ namespace Binmap.Screens
             saveButton = new Button(60, 26, "SAVE", Color.White, saveButtonClicked);
             AddChild(saveButton);
 
-            list = new BinList(10, 10, 100, 100);
+            list = new BinList(10, 10, 100, 100, showStatus);
             list.ItemSpace = itemSpace;
             AddChild(list);
 

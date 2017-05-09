@@ -101,6 +101,7 @@ namespace Binmap.Controls
             {
                 Rectangle parentRect = Parent.WorldTransform;
                 commentInput.Text = Bin.Comment;
+                commentInput.TextColor = Bin.Color;
                 commentInput.Transform.Width = CommentColumnWidth - 17;
                 commentInput.Transform.Height = Transform.Height;
                 commentInput.Transform.X = parentRect.Width - CommentColumnWidth - Transform.X + 2;

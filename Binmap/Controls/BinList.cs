@@ -79,9 +79,12 @@ namespace Binmap.Controls
         private int commentColumnWidth = 160;
         
         private Scrollbar scrollbar;
+        private Action<string, float> statusCallback;
 
-        public BinList(int x, int y, int w, int h) : base(x, y, w, h, Main.BorderColor)
+        public BinList(int x, int y, int w, int h, Action<string, float> statusCallback) : base(x, y, w, h, Main.BorderColor)
         {
+            this.statusCallback = statusCallback;
+
             bins = new List<Bin>();
             items = new List<BinListItem>();
             selection = new SortedList<int, Bin>();
@@ -239,6 +242,25 @@ namespace Binmap.Controls
 
         public bool ProcessKey(Keys key)
         {
+            if (key == Keys.C && (Main.KeyboardState.IsKeyDown(Keys.LeftControl) || Main.KeyboardState.IsKeyDown(Keys.RightControl)))
+            {
+                if (selection.Count > 0)
+                {
+                    string[] s = new string[selection.Count];
+                    int i = 0;
+                    foreach (Bin selBin in selection.Values)
+                    {
+                        s[i] = (selBin.LineBreak ? Environment.NewLine : "") + selBin.Text;
+                        i++;
+                    }
+                    System.Windows.Forms.Clipboard.SetText(string.Join(",", s));
+                    statusCallback("Copied " + i + " byte" + (i > 1 ? "s" : "") + " to clipboard.", 2);
+                }
+                else statusCallback("No bytes selected!", 1);
+
+                return true;
+            }
+
             if (selection.Count == 0) return false;
 
             Bin bin = selection.First().Value;
@@ -319,7 +341,7 @@ namespace Binmap.Controls
             spriteBatch.Draw(Main.WhiteTexture, rect, Color.FromNonPremultiplied(0, 0, 0, 160));
 
             Vector2 textPos = new Vector2(Main.MouseState.Position.X + 14, Main.MouseState.Position.Y + 24);
-            textPos.Y += Main.DefaultFont == Main.FontL ? 0 : 4;
+            textPos.Y += Main.DefaultFont == Main.FontL ? 1 : 5;
 
             spriteBatch.DrawString(Main.DefaultFont, text, textPos, Color.Black);
 

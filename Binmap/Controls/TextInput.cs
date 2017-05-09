@@ -30,6 +30,8 @@ namespace Binmap.Controls
         private int caretPosition = 0;
         private float caretTime = 0;
 
+        public Color TextColor = Color.Yellow;
+
         public TextInput(int x, int y, int w, int h) : base(x, y, w, h, Main.BackgroundColor)
         {
             MouseEnabled = true;
@@ -62,7 +64,7 @@ namespace Binmap.Controls
             int x = worldRect.X + 2;
             int y = worldRect.Y - 1;
             if (Main.DefaultFont == Main.FontS) y += 4;
-            spriteBatch.DrawString(Main.DefaultFont, Text, new Vector2(x, y), Color.Yellow);
+            spriteBatch.DrawString(Main.DefaultFont, Text, new Vector2(x, y), TextColor);
 
             // caret
             if (focused && caretTime % 0.4f > 0.2f)
