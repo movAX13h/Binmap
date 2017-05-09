@@ -31,18 +31,18 @@ Binmap 1.0 usage demo on YouTube: http://www.youtube.com/watch?v=-Wx9N8A53AM
 Binmap is a .NET application using XNA/MonoGame/SharpDX (Visual Studio Community 2015 solution) for fast rendering on the GPU. The dll overkill feels a little weird but I wanted to see how it performs for UIs.
 The font in use is called [Pixel Operator](http://www.dafont.com/de/pixel-operator.font) and should be installed for compiling.
 
-## Status
-Binmap is currently in development. Consider this repo a personal backup of my work on this project.
-Feel free to clone and compile the tool if you want to try it. A download link will be added here when I feel that the program has reached a certain state.
+## Download
+Binmap currently is in development. Consider this repo a personal backup of my work on this project.
+Anyway, if you are interested, here is the latest version: [Binmap Release](https://github.com/movAX13h/Binmap/releases/latest)
 
-### Soon
+### Todo
  - TextInput text range selection (mouse and keyboard)
  - Scrollbar track click
  - view for multiple bytes combined as int, float, double, ...
 
 ### Changelog 
  - v1.2 - 2017-05-10
-   - Editing values and writing changes to data file
+   - values editing and writing changes back to data file
    - CTRL+C to copy selected bytes in the selected format and comma-separated to clipboard
    - comment color from first byte in row (item that causes the line break)
 
