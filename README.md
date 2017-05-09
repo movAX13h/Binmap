@@ -1,22 +1,20 @@
 # ![Binmap Logo](https://cloud.githubusercontent.com/assets/1974959/25785795/2718aaf2-3389-11e7-9078-fbf5b20801bf.png) Binmap
 
-A tool that helps to analyse and document binary data file formats.
+A tool that helps to analyse and document binary data file formats. It also allows to edit values and write back changes.
 
 ## Screenshots
 
-Binmap start screen:
+start screen:
 
 ![Binmap start screen](https://cloud.githubusercontent.com/assets/1974959/25785729/f80b0ab2-3387-11e7-8a06-2a2b3fe750a1.png)
 
-Binmap, data loaded, unformatted:
+data loaded, unformatted:
 
 ![Binmap unformatted data](https://cloud.githubusercontent.com/assets/1974959/25785754/6fac491e-3388-11e7-9d53-cf7eb44e84da.png)
 
-![Binmap byte and range info](https://cloud.githubusercontent.com/assets/1974959/25830494/8cd354ee-345d-11e7-8aac-95e031fe1aae.png)
+data formatted and commented:
 
-Binmap, data formatted and commented:
-
-![Binmap formatted and commented data](https://cloud.githubusercontent.com/assets/1974959/25785775/c1e0a766-3388-11e7-8e21-2af0f97a7925.png)
+![Binmap formatted and commented data](https://cloud.githubusercontent.com/assets/1974959/25872302/75fe61ac-350a-11e7-97af-12cbf29d1cf4.png)
 
 
 ## How it works and what it does
@@ -44,6 +42,7 @@ Feel free to clone and compile the tool if you want to try it. A download link w
 
 ### Changelog 
  - v1.2 - 2017-05-10
+   - Editing values and writing changes to data file
    - CTRL+C to copy selected bytes in the selected format and comma-separated to clipboard
    - comment color from first byte in row (item that causes the line break)
 

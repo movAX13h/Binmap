@@ -16,6 +16,8 @@ namespace Binmap.Controls
         public Color NormalColor = Main.PanelColor;
         public Color OverColor = Main.BackgroundColor;
 
+        public SpriteFont Font = Main.FontL;
+
         public Button(int w, int h, string text, Color textColor, Action<Button> callback = null, object tag = null) : base(0, 0, w, h, Main.BorderColor)
         {
             MouseEnabled = true;
@@ -40,11 +42,11 @@ namespace Binmap.Controls
 
             spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2), MouseIsOver ? OverColor : NormalColor);
 
-            Vector2 size = Main.FontL.MeasureString(Text);
+            Vector2 size = Font.MeasureString(Text);
             rect.X += (int)Math.Floor((Transform.Width - size.X) / 2) + 1;
             rect.Y += (int)Math.Floor((Transform.Height - size.Y) / 2);
 
-            spriteBatch.DrawString(Main.FontL, Text, new Vector2(rect.X, rect.Y), TextColor);
+            spriteBatch.DrawString(Font, Text, new Vector2(rect.X, rect.Y), TextColor);
         }
     }
 }

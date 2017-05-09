@@ -20,11 +20,15 @@ namespace Binmap.Screens
         private Button smallButton;
         private Button largeButton;
         private Button saveButton;
+        private Button writeButton;
+
+        private TextInput valueInput;
 
         private string statusText = string.Empty;
         private string newStatusText = string.Empty;
         private float statusVis = 0;
         private bool statusFadeOut = true;
+        private float statusTime = 0;
 
         private string usageText = "LMB: select/deselect, Shift+LMB: range selection, RMB: clear selection, ENTER: line break, BACKSPACE: remove line break";
         private string startText = "DROP FILE TO START";
@@ -35,16 +39,19 @@ namespace Binmap.Screens
 
         public string LastError { get; private set; } = string.Empty;
 
+        private Bin selectedBin;
+        private List<Bin> modifiedBins = new List<Bin>();
+
         public Layouter(int x, int y, int w, int h) : base(x, y, w, h, Main.BackgroundColor)
         {
             newStatusText = usageText;
             
             formatButtons = new List<Button>();
-            formatButtons.Add(new Button(60, 26, "HEX", Main.HexColor, typeHexButtonClicked, Bin.Formats.Hex));
-            formatButtons.Add(new Button(60, 26, "BIN", Main.BinColor, typeHexButtonClicked, Bin.Formats.Binary));
-            formatButtons.Add(new Button(60, 26, "DEC", Main.DecColor, typeHexButtonClicked, Bin.Formats.Decimal));
-            formatButtons.Add(new Button(60, 26, "NIB", Main.NibDecColor, typeHexButtonClicked, Bin.Formats.NibblesDecimal));
-            formatButtons.Add(new Button(60, 26, "ASCII", Main.AsciiColor, typeHexButtonClicked, Bin.Formats.Ascii));
+            formatButtons.Add(new Button(80, 26, "HEX", Main.HexColor, typeHexButtonClicked, Bin.Formats.Hex));
+            formatButtons.Add(new Button(80, 26, "BIN", Main.BinColor, typeHexButtonClicked, Bin.Formats.Binary));
+            formatButtons.Add(new Button(80, 26, "DEC", Main.DecColor, typeHexButtonClicked, Bin.Formats.Decimal));
+            formatButtons.Add(new Button(80, 26, "NIB", Main.NibDecColor, typeHexButtonClicked, Bin.Formats.NibblesDecimal));
+            formatButtons.Add(new Button(80, 26, "ASCII", Main.AsciiColor, typeHexButtonClicked, Bin.Formats.Ascii));
             foreach (Button btn in formatButtons) AddChild(btn);
 
             smallButton = new Button(26, 26, "S", Color.White, sizeButtonClicked, 0);
@@ -53,10 +60,18 @@ namespace Binmap.Screens
             largeButton = new Button(26, 26, "L", Color.White, sizeButtonClicked, 1);
             AddChild(largeButton);
 
-            saveButton = new Button(60, 26, "SAVE", Color.White, saveButtonClicked);
+            writeButton = new Button(80, 26, "WRITE", Color.White, writeButtonClicked);
+            AddChild(writeButton);
+
+            saveButton = new Button(80, 26, "SAVE", Color.White, saveButtonClicked);
             AddChild(saveButton);
 
-            list = new BinList(10, 10, 100, 100, showStatus);
+            valueInput = new TextInput(10, 10, 72, 14);
+            valueInput.TextColor = Main.DecColor;
+            valueInput.OnChangeCallback = valueChanged;
+            AddChild(valueInput);
+
+            list = new BinList(10, 10, 100, 100, itemSelected, showStatus);
             list.ItemSpace = itemSpace;
             AddChild(list);
 
@@ -64,9 +79,72 @@ namespace Binmap.Screens
             setItemFontSize(1);
         }
 
+        private void writeButtonClicked(Button obj)
+        {
+            showStatus("Changes written to '" + Path.GetFileName(DataFilename) + "'", 2);
+
+            using (Stream stream = File.Open(DataFilename, FileMode.Open))
+            {
+                foreach (Bin bin in modifiedBins)
+                {
+                    stream.Position = bin.Offset;
+                    stream.WriteByte(bin.Value);
+                }
+            }
+
+            modifiedBins.Clear();
+        }
+
+        private void valueChanged(IInput input)
+        {
+            TextInput textInput = input as TextInput;
+
+            byte b = selectedBin.Value;
+            if (byte.TryParse(textInput.Text, out b))
+            {
+                if (!modifiedBins.Contains(selectedBin)) modifiedBins.Add(selectedBin);
+                selectedBin.Value = b;
+                valueInput.FocusFrameColor = Main.TrackColor;
+            }
+            else valueInput.FocusFrameColor = Color.Red;
+            
+        }
+
+        private void itemSelected(BinListItem item)
+        {
+            if (item == null)
+            {
+                valueInput.Visible = false;
+                selectedBin = null;
+            }
+            else
+            {
+                selectedBin = item.Bin;
+                valueInput.Text = item.Bin.Value.ToString();
+                valueInput.Visible = true;
+            }
+        }
+
         public bool LoadFile(string filename)
         {
-            if (loadBinmapFile(filename))
+            // clear some variables
+            selectedBin = null;
+            modifiedBins.Clear();
+
+            // filename can be any file or a .binmap
+            bool isBinmap = false;
+
+            try
+            {
+                isBinmap = loadBinmapFile(filename);
+            }
+            catch (Exception e)
+            {
+                LastError = "Exception while trying to load binmap file: " + e.Message;
+                return false;
+            }
+
+            if (isBinmap)
             {
                 DataFilename = Path.Combine(Path.GetDirectoryName(filename), BinmapDataFilename);
                 BinmapFilename = filename;
@@ -83,26 +161,41 @@ namespace Binmap.Screens
                 return false;
             }
 
-            byte[] bytes = File.ReadAllBytes(DataFilename);
-
             list.Lock();
-            list.Clear();
 
-            int offset = 0;
-
-            foreach (byte b in bytes)
+            try
             {
-                Bin item = new Bin(b, offset);
-                list.AddItem(item);
-                offset++;
+                byte[] bytes = File.ReadAllBytes(DataFilename);
+
+                list.Clear();
+
+                int offset = 0;
+
+                foreach (byte b in bytes)
+                {
+                    Bin item = new Bin(b, offset);
+                    list.AddItem(item);
+                    offset++;
+                }
+            }
+            catch (Exception e)
+            {
+                LastError = "Failed to load data: " + e.Message;
+                return false;
             }
 
-            loadBinmapFile(BinmapFilename, true);
+            try
+            {
+                loadBinmapFile(BinmapFilename, true);
+            }
+            catch (Exception e)
+            {
+                LastError = "Exception while trying to load binmap file: " + e.Message;
+                return false;
+            }
 
             list.Unlock();
-
             saveButton.Visible = list.NumItems > 0;
-
             return true;
         }
 
@@ -176,47 +269,8 @@ namespace Binmap.Screens
                 }
             }
 
-            showStatus("Binmap saved to " + Path.GetFileName(BinmapFilename), 4);
+            showStatus("Binmap saved to '" + Path.GetFileName(BinmapFilename) + "'", 4);
         }
-
-        #region button handlers
-        private void saveButtonClicked(Button btn)
-        {
-            saveFile();
-        }
-
-        private void sizeButtonClicked(Button btn)
-        {
-            setItemFontSize((int)btn.Tag);
-        }
-
-        private void setItemFontSize(int id)
-        {
-            if (id == 0)
-            {
-                smallButton.NormalColor = Main.BorderColor;
-                largeButton.NormalColor = Main.PanelColor;
-            }
-            else
-            {
-                smallButton.NormalColor = Main.PanelColor;
-                largeButton.NormalColor = Main.BorderColor;
-            }
-
-            SpriteFont[] fonts = new SpriteFont[] { Main.FontS, Main.FontL };
-
-            Main.DefaultFont = fonts[id];
-            list.ItemSize = new Point(20, 13 + 2*id);
-        }
-
-        private void typeHexButtonClicked(Button btn)
-        {
-            list.SetBinFormat((Bin.Formats)btn.Tag);
-        }
-        #endregion
-
-
-        private float statusTime = 0;
 
         private void showStatus(string text, float time)
         {
@@ -260,6 +314,32 @@ namespace Binmap.Screens
 
         }
 
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            // selection info
+            if (selectedBin != null)
+            {
+                int h = 38;
+
+                Rectangle rect = valueInput.WorldTransform;
+                int x = rect.X - 4;
+                int y = rect.Y;
+                spriteBatch.Draw(Main.WhiteTexture, new Rectangle(x, y - 20, 80, h), Main.PanelColor);
+                spriteBatch.DrawString(Main.FontS, "VALUE", new Vector2(x + 4, y - 12), Color.White);
+
+                y += h - 4;
+
+                spriteBatch.DrawString(Main.FontS, "SELECTION", new Vector2(x, y), Color.White);
+
+                string s = list.Selection.Count.ToString() + " byte" + (list.Selection.Count > 1 ? "s" : ""); /* + Environment.NewLine +
+                        "first: " + list.Selection.First().Value.Offset.ToString() + Environment.NewLine +
+                        "last: " + list.Selection.Last().Value.Offset.ToString(); */
+
+                spriteBatch.DrawString(Main.FontS, s, new Vector2(x + 2, y + 12), Main.TrackColor);
+            }
+
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
@@ -284,14 +364,17 @@ namespace Binmap.Screens
                     new Vector2((float)Math.Floor(center.X - size.X / 2f), (float)Math.Floor(center.Y - size.Y / 2f) + 70), 
                     Main.BorderColor);
             }
+
+            writeButton.Transform.Y = saveButton.Transform.Y - 30;
+            writeButton.Visible = modifiedBins.Count > 0 && writeButton.Transform.Y > valueInput.WorldTransform.Y + 50;
         }
 
         public override void Resize(int w, int h)
         {
             base.Resize(w, h);
-            list.Resize(w - 96, h - 40);
+            list.Resize(w - 108, h - 40);
 
-            int x = list.Transform.X + w - 90;
+            int x = list.Transform.X + w - 102;
             int y = list.Transform.Y;
 
             foreach (Button btn in formatButtons)
@@ -302,18 +385,60 @@ namespace Binmap.Screens
             }
 
             y += 10;
-            smallButton.Transform.X = x;
+            smallButton.Transform.X = x + 13;
             smallButton.Transform.Y = y;
-            y += 30;
-            largeButton.Transform.X = x;
+            
+            largeButton.Transform.X = x + 43;
             largeButton.Transform.Y = y;
-            y += 30;
+            y += 60;
+
+            valueInput.Transform.X = x + 4;
+            valueInput.Transform.Y = y;
+            y += 50;
+
+            int by = list.Transform.Y + list.Transform.Height - saveButton.Transform.Height;
 
             saveButton.Transform.X = x;
-            saveButton.Transform.Y = list.Transform.Y + list.Transform.Height - saveButton.Transform.Height;
-
+            saveButton.Transform.Y = by;
             saveButton.Visible = list.NumItems > 0 && saveButton.Transform.Y > y;
+
+            writeButton.Transform.X = x;
         }
 
+        #region button handlers
+        private void saveButtonClicked(Button btn)
+        {
+            saveFile();
+        }
+
+        private void sizeButtonClicked(Button btn)
+        {
+            setItemFontSize((int)btn.Tag);
+        }
+
+        private void setItemFontSize(int id)
+        {
+            if (id == 0)
+            {
+                smallButton.NormalColor = Main.BorderColor;
+                largeButton.NormalColor = Main.PanelColor;
+            }
+            else
+            {
+                smallButton.NormalColor = Main.PanelColor;
+                largeButton.NormalColor = Main.BorderColor;
+            }
+
+            SpriteFont[] fonts = new SpriteFont[] { Main.FontS, Main.FontL };
+
+            Main.DefaultFont = fonts[id];
+            list.ItemSize = new Point(20, 13 + 2 * id);
+        }
+
+        private void typeHexButtonClicked(Button btn)
+        {
+            list.SetBinFormat((Bin.Formats)btn.Tag);
+        }
+        #endregion
     }
 }

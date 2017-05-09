@@ -13,7 +13,7 @@ namespace Binmap.Core
         public bool LineBreak = false;
         public string Comment = string.Empty;
 
-        public byte Value { get; private set; }
+        public byte Value; // { get; private set; }
         public int Offset { get; private set; }
 
         public bool Selected = false;

@@ -18,6 +18,8 @@ namespace Binmap.Controls
             }
         }
 
+        public Color FocusFrameColor = Main.TrackColor;
+
         private Action<IInput> onChangeCallback = null;
         public Action<IInput> OnChangeCallback
         {
@@ -53,7 +55,7 @@ namespace Binmap.Controls
         {
             if (!Visible) return;
 
-            Color = focused ? Main.TrackColor : Main.BackgroundColor;
+            Color = focused ? FocusFrameColor : Main.BackgroundColor;
 
             base.Draw(spriteBatch);
 
@@ -67,6 +69,7 @@ namespace Binmap.Controls
             spriteBatch.DrawString(Main.DefaultFont, Text, new Vector2(x, y), TextColor);
 
             // caret
+            if (caretPosition > Text.Length) caretPosition = Text.Length;
             if (focused && caretTime % 0.4f > 0.2f)
             {
                 string left = Text.Substring(0, caretPosition);

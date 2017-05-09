@@ -14,7 +14,7 @@ namespace Binmap.Controls
         private List<Bin> bins;
         private List<BinListItem> items;
 
-        private SortedList<int,Bin> selection;
+        public SortedList<int,Bin> Selection { get; private set; }
         private Bin lastSelectedBin = null;
 
         public Point itemSize { get; private set; } = new Point(20);
@@ -80,14 +80,17 @@ namespace Binmap.Controls
         
         private Scrollbar scrollbar;
         private Action<string, float> statusCallback;
+        private Action<BinListItem> itemSelectedCallback;
+        private BinListItem overItem = null;
 
-        public BinList(int x, int y, int w, int h, Action<string, float> statusCallback) : base(x, y, w, h, Main.BorderColor)
+        public BinList(int x, int y, int w, int h, Action<BinListItem> itemSelectedCallback, Action<string, float> statusCallback) : base(x, y, w, h, Main.BorderColor)
         {
             this.statusCallback = statusCallback;
+            this.itemSelectedCallback = itemSelectedCallback;
 
             bins = new List<Bin>();
             items = new List<BinListItem>();
-            selection = new SortedList<int, Bin>();
+            Selection = new SortedList<int, Bin>();
 
             scrollbar = new Scrollbar(this);
             AddChild(scrollbar);
@@ -102,11 +105,9 @@ namespace Binmap.Controls
 
         public void SetBinFormat(Bin.Formats format)
         {
-            foreach (Bin bin in selection.Values) bin.Format = format;
-            if (selection.Count > 0) Layout();
+            foreach (Bin bin in Selection.Values) bin.Format = format;
+            if (Selection.Count > 0) Layout();
         }
-
-        private BinListItem overItem = null;
 
         public void Layout()
         {
@@ -151,7 +152,7 @@ namespace Binmap.Controls
                 item.LineEnd = null;
                 item.Bin = bin;
                 item.ID = ctr;
-                item.Selected = selection.ContainsKey(item.Bin.Offset);
+                item.Selected = Selection.ContainsKey(item.Bin.Offset);
 
                 if (x + item.Transform.Width + itemSpace.X > Transform.Width - commentColumnWidth || item.Bin.LineBreak)
                 {
@@ -211,24 +212,29 @@ namespace Binmap.Controls
                     for (int i = start; i <= end; i++)
                     {
                         Bin rangeItem = bins[i];
-                        if (!selection.ContainsKey(rangeItem.Offset)) selection.Add(rangeItem.Offset, rangeItem);
+                        if (!Selection.ContainsKey(rangeItem.Offset)) Selection.Add(rangeItem.Offset, rangeItem);
                     }
 
                     Layout();
                 }
             }
 
-            if (lastSelectedBin != null) lastSelectedBin.Selected = false;
+            if (lastSelectedBin != null)
+            {
+                lastSelectedBin.Selected = false;
+                itemSelectedCallback(null);
+            }
 
             if (item.Selected)
             {
                 lastSelectedBin = item.Bin;
                 lastSelectedBin.Selected = true;
-                if (!selection.ContainsKey(item.Bin.Offset)) selection.Add(item.Bin.Offset, item.Bin);
+                if (!Selection.ContainsKey(item.Bin.Offset)) Selection.Add(item.Bin.Offset, item.Bin);
+                itemSelectedCallback(item);
             }
             else
             {
-                if (selection.ContainsKey(item.Bin.Offset)) selection.Remove(item.Bin.Offset);
+                if (Selection.ContainsKey(item.Bin.Offset)) Selection.Remove(item.Bin.Offset);
                 lastSelectedBin = null;
             }
         }
@@ -237,18 +243,19 @@ namespace Binmap.Controls
         {
             if (lastSelectedBin != null) lastSelectedBin.Selected = false;
             lastSelectedBin = null;
-            selection.Clear();
+            Selection.Clear();
+            itemSelectedCallback(null);
         }
 
         public bool ProcessKey(Keys key)
         {
             if (key == Keys.C && (Main.KeyboardState.IsKeyDown(Keys.LeftControl) || Main.KeyboardState.IsKeyDown(Keys.RightControl)))
             {
-                if (selection.Count > 0)
+                if (Selection.Count > 0)
                 {
-                    string[] s = new string[selection.Count];
+                    string[] s = new string[Selection.Count];
                     int i = 0;
-                    foreach (Bin selBin in selection.Values)
+                    foreach (Bin selBin in Selection.Values)
                     {
                         s[i] = (selBin.LineBreak ? Environment.NewLine : "") + selBin.Text;
                         i++;
@@ -261,9 +268,9 @@ namespace Binmap.Controls
                 return true;
             }
 
-            if (selection.Count == 0) return false;
+            if (Selection.Count == 0) return false;
 
-            Bin bin = selection.First().Value;
+            Bin bin = Selection.First().Value;
 
             // add line break
             if (key == Keys.Enter)
@@ -309,6 +316,8 @@ namespace Binmap.Controls
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Rectangle rect = WorldTransform;
+
+            // background
             spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2), Main.PanelColor);
 
             // vertical separator line for comments column
@@ -358,6 +367,12 @@ namespace Binmap.Controls
             if (!layoutLocked) Layout();
         }
 
+        public void OnScroll(int scrollPosition)
+        {
+            startIndex = scrollPosition;
+            Layout();
+        }
+
         #region item management
         public void Lock()
         {
@@ -392,12 +407,5 @@ namespace Binmap.Controls
             scrollbar.ScrollTo(0);
         }
         #endregion
-
-        public void OnScroll(int scrollPosition)
-        {
-            startIndex = scrollPosition;
-            Layout();
-        }
-
     }
 }
