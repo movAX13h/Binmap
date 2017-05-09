@@ -33,7 +33,7 @@ The font in use is called [Pixel Operator](http://www.dafont.com/de/pixel-operat
 
 ## Download
 Binmap currently is in development. Consider this repo a personal backup of my work on this project.
-Anyway, if you are interested, here is the latest version: [Binmap v1.2](http://www.thrill-project.com/archiv/coding/Binmap.zip) (980kb)
+Anyway, if you are interested, here is the latest version: [Binmap Release](https://github.com/movAX13h/Binmap/releases/latest)
 
 ### Todo
  - TextInput text range selection (mouse and keyboard)
