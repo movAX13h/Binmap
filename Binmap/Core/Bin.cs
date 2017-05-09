@@ -16,6 +16,8 @@ namespace Binmap.Core
         public byte Value { get; private set; }
         public int Offset { get; private set; }
 
+        public bool Selected = false;
+
         public string Text
         {
             get

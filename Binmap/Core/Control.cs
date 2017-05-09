@@ -54,6 +54,8 @@ namespace Binmap.Core
         {
             if (!Visible) return;
 
+            bool oldMouseIsOver = MouseIsOver;
+
             if (MouseEnabled)
             {
                 Rectangle r = new Rectangle(Main.MouseState.Position, new Point(1, 1));
@@ -68,10 +70,23 @@ namespace Binmap.Core
                     MouseIsDown = true;
                 }
                 else MouseIsDown = false;
+
+                if (oldMouseIsOver && !MouseIsOver) OnMouseLeave();
+                if (!oldMouseIsOver && MouseIsOver) OnMouseEnter();
             }
         }
 
         protected virtual void OnMouseDown()
+        {
+
+        }
+
+        protected virtual void OnMouseEnter()
+        {
+
+        }
+
+        protected virtual void OnMouseLeave()
         {
 
         }

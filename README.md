@@ -12,6 +12,8 @@ Binmap, data loaded, unformatted:
 
 ![Binmap unformatted data](https://cloud.githubusercontent.com/assets/1974959/25785754/6fac491e-3388-11e7-9d53-cf7eb44e84da.png)
 
+![Binmap byte and range info](https://cloud.githubusercontent.com/assets/1974959/25830494/8cd354ee-345d-11e7-8aac-95e031fe1aae.png)
+
 Binmap, data formatted and commented:
 
 ![Binmap formatted and commented data](https://cloud.githubusercontent.com/assets/1974959/25785775/c1e0a766-3388-11e7-8e21-2af0f97a7925.png)
@@ -42,8 +44,10 @@ Feel free to clone and compile the tool if you want to try it. A download link w
 
 ### Changelog 
  - v1.1 - 2017-05-09 
+   - added byte and range info on mouse over
    - fixed window focus problem allowing click through other windows
    - fixed range selection in combination with scrolling
+   - changed: storing format as byte now (was int previously)
    
  - v1.0 - 2017-05-08 
    - github release

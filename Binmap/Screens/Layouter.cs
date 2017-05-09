@@ -38,11 +38,7 @@ namespace Binmap.Screens
         public Layouter(int x, int y, int w, int h) : base(x, y, w, h, Main.BackgroundColor)
         {
             newStatusText = usageText;
-
-            list = new BinList(10, 10, 100, 100);
-            list.ItemSpace = itemSpace;
-            AddChild(list);
-
+            
             formatButtons = new List<Button>();
             formatButtons.Add(new Button(60, 26, "HEX", Main.HexColor, typeHexButtonClicked, Bin.Formats.Hex));
             formatButtons.Add(new Button(60, 26, "BIN", Main.BinColor, typeHexButtonClicked, Bin.Formats.Binary));
@@ -59,6 +55,10 @@ namespace Binmap.Screens
 
             saveButton = new Button(60, 26, "SAVE", Color.White, saveButtonClicked);
             AddChild(saveButton);
+
+            list = new BinList(10, 10, 100, 100);
+            list.ItemSpace = itemSpace;
+            AddChild(list);
 
             Resize(w, h);
             setItemFontSize(1);
@@ -136,7 +136,7 @@ namespace Binmap.Screens
                     while (reader.BaseStream.Position != reader.BaseStream.Length)
                     {
                         int offset = reader.ReadInt32();
-                        int format = reader.ReadInt32();
+                        int format = reader.ReadByte();
                         bool lineBreak = reader.ReadBoolean();
                         string comment = reader.ReadString();
 
@@ -169,7 +169,7 @@ namespace Binmap.Screens
                     if (bin.Format > 0 || bin.LineBreak)
                     {
                         writer.Write(bin.Offset);
-                        writer.Write((int)bin.Format);
+                        writer.Write((byte)bin.Format);
                         writer.Write(bin.LineBreak);
                         writer.Write(bin.Comment);
                     }

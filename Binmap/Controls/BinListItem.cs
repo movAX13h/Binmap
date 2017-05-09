@@ -53,12 +53,17 @@ namespace Binmap.Controls
         public int CommentColumnWidth;
 
         private Action<BinListItem> clickCallback;
+        private Action<BinListItem> mouseEnterCallback;
+        private Action<BinListItem> mouseLeaveCallback;
         private TextInput commentInput;
 
-        public BinListItem(Action<BinListItem> callback) : base(0, 0, 10, 10, Color.White)
+        public BinListItem(Action<BinListItem> clickCallback, Action<BinListItem> mouseEnterCallback, Action<BinListItem> mouseLeaveCallback) : base(0, 0, 10, 10, Color.White)
         {           
             MouseEnabled = true;
-            clickCallback = callback;
+
+            this.clickCallback = clickCallback;
+            this.mouseEnterCallback = mouseEnterCallback;
+            this.mouseLeaveCallback = mouseLeaveCallback;
 
             commentInput = new TextInput(0, 0, 143, 20);
             commentInput.OnChangeCallback = commentChanged;
@@ -77,9 +82,19 @@ namespace Binmap.Controls
             clickCallback(this);
         }
 
+        protected override void OnMouseEnter()
+        {
+            mouseEnterCallback(this);
+        }
+
+        protected override void OnMouseLeave()
+        {
+            mouseLeaveCallback(this);
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
-            Color = Selected ? Color.LightGray : Main.BackgroundColor;
+            Color = Selected ? (Bin.Selected ? Color.Fuchsia : Color.LightGray) : Main.BackgroundColor;
 
             // comment (only for the first item or items with line break)
             if (Bin.LineBreak || Bin.Offset == 0)
@@ -104,6 +119,7 @@ namespace Binmap.Controls
             if (Selected) spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2), Main.PanelColor);
 
             Vector2 textSize = Main.DefaultFont.MeasureString(text);
+            if (Main.DefaultFont == Main.FontS) textSize.Y -= 2;
 
             rect.X += (int)Math.Floor((Transform.Width - textSize.X) / 2);
             rect.Y += (int)Math.Round((Transform.Height - textSize.Y) / 2) + 1;

@@ -13,8 +13,9 @@ namespace Binmap.Controls
         public List<Bin> Bins { get { return bins; } }
         private List<Bin> bins;
         private List<BinListItem> items;
+
         private SortedList<int,Bin> selection;
-        private Bin lastSelectedBin;
+        private Bin lastSelectedBin = null;
 
         public Point itemSize { get; private set; } = new Point(20);
         public Point ItemSize
@@ -48,7 +49,7 @@ namespace Binmap.Controls
             }
         }
 
-        #region Scrollbar target implementations
+        #region IScrollbarTarget and IInput implementations
         Rectangle IScrollbarTarget.ScrollRectangle { get { return Transform; } }
         public int ScrollStepSize { get { return 100; } }
         public int MaxScrollValue { get { return bins.Count - 1; } }
@@ -66,7 +67,7 @@ namespace Binmap.Controls
         {
             set
             {
-                throw new NotImplementedException();
+                
             }
         }
         #endregion
@@ -102,6 +103,8 @@ namespace Binmap.Controls
             if (selection.Count > 0) Layout();
         }
 
+        private BinListItem overItem = null;
+
         public void Layout()
         {
             scrollbar.Visible = bins.Count > 0;
@@ -132,7 +135,7 @@ namespace Binmap.Controls
                 BinListItem item;
                 if (ctr >= items.Count)
                 {
-                    item = new BinListItem(itemClicked);
+                    item = new BinListItem(itemClick, itemEnter, itemLeave);
                     item.CommentColumnWidth = commentColumnWidth;
                     items.Add(item);
                     AddChild(item);
@@ -181,7 +184,17 @@ namespace Binmap.Controls
             scrollbar.Layout();
         }
 
-        private void itemClicked(BinListItem item)
+        private void itemEnter(BinListItem item)
+        {
+            overItem = item;
+        }
+
+        private void itemLeave(BinListItem item)
+        {
+            if (overItem == item) overItem = null;
+        }
+
+        private void itemClick(BinListItem item)
         {
             Main.SetFocus(this);
 
@@ -190,28 +203,53 @@ namespace Binmap.Controls
                 int start = Math.Min(lastSelectedBin.Offset, item.Bin.Offset);
                 int end =   Math.Max(lastSelectedBin.Offset, item.Bin.Offset);
 
-                for (int i = start; i <= end; i++)
+                if (end - start > 0)
                 {
-                    Bin rangeItem = bins[i];
-                    if (!selection.ContainsKey(rangeItem.Offset)) selection.Add(rangeItem.Offset, rangeItem);
-                }
+                    for (int i = start; i <= end; i++)
+                    {
+                        Bin rangeItem = bins[i];
+                        if (!selection.ContainsKey(rangeItem.Offset)) selection.Add(rangeItem.Offset, rangeItem);
+                    }
 
-                if (end - start > 0) Layout();
+                    Layout();
+                }
             }
 
-            lastSelectedBin = item.Bin;
+            if (lastSelectedBin != null) lastSelectedBin.Selected = false;
+
+            if (item.Selected)
+            {
+                lastSelectedBin = item.Bin;
+                lastSelectedBin.Selected = true;
+                if (!selection.ContainsKey(item.Bin.Offset)) selection.Add(item.Bin.Offset, item.Bin);
+            }
+            else
+            {
+                if (selection.ContainsKey(item.Bin.Offset)) selection.Remove(item.Bin.Offset);
+                lastSelectedBin = null;
+            }
         }
 
+        private void deselectAll()
+        {
+            if (lastSelectedBin != null) lastSelectedBin.Selected = false;
+            lastSelectedBin = null;
+            selection.Clear();
+        }
 
         public bool ProcessKey(Keys key)
         {
+            if (selection.Count == 0) return false;
+
+            Bin bin = selection.First().Value;
+
             // add line break
             if (key == Keys.Enter)
             {
-                if (selection.Count > 0 && selection.First().Value.Offset > 0)
+                if (bin.Offset > 0)
                 {
-                    selection.First().Value.LineBreak = true;
-                    selection.First().Value.Comment = "";
+                    bin.LineBreak = true;
+                    bin.Comment = "";
                     Layout();
                 }
 
@@ -221,10 +259,10 @@ namespace Binmap.Controls
             // remove line break
             if (key == Keys.Back)
             {
-                if (selection.Count > 0 && selection.First().Value.LineBreak)
+                if (bin.LineBreak)
                 {
-                    selection.First().Value.LineBreak = false;
-                    selection.First().Value.Comment = "";
+                    bin.LineBreak = false;
+                    bin.Comment = "";
                     Layout();
                 }
 
@@ -241,23 +279,64 @@ namespace Binmap.Controls
             // clear selection
             if (MouseIsOver && Main.MouseState.RightButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
             {
-                lastSelectedBin = null;
-                selection.Clear();
+                deselectAll();
                 Layout();
-            }
-
-            // update selections
-            foreach(BinListItem item in items)
-            {
-                if (item.Selected && !selection.ContainsKey(item.Bin.Offset)) selection.Add(item.Bin.Offset, item.Bin);
-                else if (!item.Selected && selection.ContainsKey(item.Bin.Offset))
-                {
-                    selection.Remove(item.Bin.Offset);
-                    lastSelectedBin = null;
-                }
-            }
+            }            
         }
 
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            Rectangle rect = WorldTransform;
+            spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2), Main.PanelColor);
+
+            // vertical separator line for comments column
+            if (bins.Count > 0) spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + rect.Width - commentColumnWidth, rect.Y + 2, 1, rect.Height - 4), Main.BorderColor);
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            base.Draw(spriteBatch);
+
+            #region cursor note
+            if (!MouseIsOver || overItem == null) return;
+
+            string text = "Address: 0x" + overItem.Bin.Offset.ToString("X") + " (" + overItem.Bin.Offset.ToString() + ")" + Environment.NewLine +
+                          "Value: 0x" + overItem.Bin.Value.ToString("X2") + " (" + overItem.Bin.Value.ToString() + ")";
+
+            if (lastSelectedBin != null && lastSelectedBin != overItem.Bin)
+            {
+                int dist = Math.Abs(lastSelectedBin.Offset - overItem.Bin.Offset) + 1;
+                text += Environment.NewLine +
+                        "-------------------------------" + Environment.NewLine +
+                        "Range: 0x" + lastSelectedBin.Offset.ToString("X") + " -> 0x" + overItem.Bin.Offset.ToString("X") + " = " + dist.ToString() + "bytes";
+            }
+
+            Vector2 textSize = Main.DefaultFont.MeasureString(text);
+
+            textSize.Y -= Main.DefaultFont == Main.FontL ? 6 : 4;
+            
+            Rectangle rect = new Rectangle(Main.MouseState.Position.X + 10, Main.MouseState.Position.Y + 24, (int)textSize.X + 8, (int)textSize.Y + 8);
+            spriteBatch.Draw(Main.WhiteTexture, rect, Color.FromNonPremultiplied(0, 0, 0, 160));
+
+            Vector2 textPos = new Vector2(Main.MouseState.Position.X + 14, Main.MouseState.Position.Y + 24);
+            textPos.Y += Main.DefaultFont == Main.FontL ? 0 : 4;
+
+            spriteBatch.DrawString(Main.DefaultFont, text, textPos, Color.Black);
+
+            textPos.X -= 1;
+            textPos.Y -= 1;
+            spriteBatch.DrawString(Main.DefaultFont, text, textPos, Color.White);
+            #endregion
+        }
+
+        public override void Resize(int w, int h)
+        {
+            base.Resize(w, h);
+            scrollbar.Resize(14, h);
+            if (!layoutLocked) Layout();
+        }
+
+        #region item management
         public void Lock()
         {
             layoutLocked = true;
@@ -267,21 +346,6 @@ namespace Binmap.Controls
         {
             layoutLocked = false;
             if (dirty) Layout();
-        }
-
-        public override void CustomDraw(SpriteBatch spriteBatch)
-        {
-            Rectangle rect = WorldTransform;
-            spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2), Main.PanelColor);
-            if (bins.Count > 0) spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + rect.Width - commentColumnWidth, rect.Y + 2, 1, rect.Height - 4), Main.BorderColor);
-        }
-
-
-        public override void Resize(int w, int h)
-        {
-            base.Resize(w, h);
-            scrollbar.Resize(14, h);
-            if (!layoutLocked) Layout();
         }
 
         public void AddItem(Bin item)
@@ -302,10 +366,10 @@ namespace Binmap.Controls
         {
             bins.Clear();
             dirty = true;
-            lastSelectedBin = null;
-            selection.Clear();
+            deselectAll();
             scrollbar.ScrollTo(0);
         }
+        #endregion
 
         public void OnScroll(int scrollPosition)
         {

@@ -73,6 +73,7 @@ namespace Binmap
             //Window.IsBorderless = true;
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += Window_ClientSizeChanged;
+            
         }
 
         protected override void Initialize()
@@ -88,10 +89,10 @@ namespace Binmap
             WhiteTexture = new Texture2D(GraphicsDevice, 10, 10, false, SurfaceFormat.Color);
 
             FontS = Content.Load<SpriteFont>("Fonts/Font1");
-            FontS.LineSpacing = 6;
+            FontS.LineSpacing = 12;
 
             FontL = Content.Load<SpriteFont>("Fonts/Font2");
-            FontL.LineSpacing = 12;
+            FontL.LineSpacing = 14;
 
             Logo = Content.Load<Texture2D>("Logo");
 
@@ -100,7 +101,7 @@ namespace Binmap
             Color[] colorData = new Color[100];
             for (int i = 0; i < 100; i++) colorData[i] = Color.White;
             WhiteTexture.SetData<Color>(colorData);
-
+            
             layouter = new Layouter(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
 
             if (initialFile != "") loadFile(initialFile);
