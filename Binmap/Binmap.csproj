@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="Controls\BinListItem.cs" />
     <Compile Include="Controls\Button.cs" />
+    <Compile Include="Controls\DescComparer.cs" />
     <Compile Include="Controls\IInput.cs" />
     <Compile Include="Controls\IScrollbarTarget.cs" />
     <Compile Include="Controls\Scrollbar.cs" />

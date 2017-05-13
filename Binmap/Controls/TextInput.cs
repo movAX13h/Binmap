@@ -141,12 +141,14 @@ namespace Binmap.Controls
                     break;
 
                 case Keys.Add:
+                case Keys.OemPlus:
                     Text = left + "+" + right;
                     onChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
                 case Keys.Subtract:
+                case Keys.OemMinus:
                     Text = left + "-" + right;
                     onChangeCallback?.Invoke(this);
                     caretPosition += 1;
@@ -220,6 +222,14 @@ namespace Binmap.Controls
                     Text = left + s + right;
                     onChangeCallback?.Invoke(this);
                     caretPosition += 1;
+                    break;
+
+                case Keys.Delete:
+                    if (right.Length > 0)
+                    {
+                        Text = left + right.Substring(1);
+                        onChangeCallback?.Invoke(this);
+                    }
                     break;
 
                 case Keys.Back:

@@ -40,7 +40,13 @@ Anyway, if you are interested, here is the latest version: [Binmap Release](http
  - Scrollbar track click
  - view for multiple bytes combined as int, float, double, ...
 
-### Changelog 
+### Changelog
+ - v1.3
+   - marks on scrollbar indicating items with linebreak in the color of the item format
+   - changed clipboard data from comma-separated to space-separated
+   - cursor info panel position limit at the bottom
+   - added DEL key support for TextInput
+   
  - v1.2 - 2017-05-10
    - values editing and writing changes back to data file
    - CTRL+C to copy selected bytes in the selected format and comma-separated to clipboard

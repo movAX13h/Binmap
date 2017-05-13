@@ -237,6 +237,11 @@ namespace Binmap.Screens
                         bin.Format = (Bin.Formats)format;
                         bin.LineBreak = lineBreak;
                         bin.Comment = comment;
+
+                        if (bin.LineBreak || bin.Offset == 0)
+                        {
+                            list.AddScrollbarMark(bin.Offset, bin.Color);
+                        }
                     }
 
                     Debug.WriteLine("Binmap loaded.");

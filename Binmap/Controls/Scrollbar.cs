@@ -1,8 +1,25 @@
 ﻿using System;
 using Binmap.Core;
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Binmap.Controls
 {
+    /*
+    internal class ScrollbarMark
+    {
+        public int Value { get; private set; }
+        public Color Color { get; private set; }
+
+        public ScrollbarMark(int value, Color color)
+        {
+            Value = value;
+            Color = color;
+        }
+    }
+    */
+
     class Scrollbar : Container
     {
         private Button buttonA;
@@ -16,16 +33,19 @@ namespace Binmap.Controls
         private int lastScrollWheelValue;
         float lastButtonScrollTime = 0;
 
+        private SortedList<int,Color> marks;
+
         public Scrollbar(IScrollbarTarget target) : base(0, 0, 20, 20, Main.BorderColor)
         {
             this.target = target;
+            marks = new SortedList<int, Color>(new DescComparer<int>());
 
-            buttonA = new Button(14, 14, "", Main.BorderColor, buttonAClicked);
+            buttonA = new Button(14, 14, "", Main.BorderColor);
             buttonA.NormalColor = Main.BackgroundColor;
             buttonA.OverColor = Main.PanelColor;
             AddChild(buttonA);
 
-            buttonB = new Button(14, 14, "", Main.BorderColor, buttonBClicked);
+            buttonB = new Button(14, 14, "", Main.BorderColor);
             buttonB.NormalColor = Main.BackgroundColor;
             buttonB.OverColor = Main.PanelColor;
             AddChild(buttonB);
@@ -38,15 +58,24 @@ namespace Binmap.Controls
             lastScrollWheelValue = Main.MouseState.ScrollWheelValue;
         }
 
-        private void buttonAClicked(Button btn)
+        #region Marks
+        public void SetMark(int pos, Color color)
         {
-            //scroll(-target.ScrollStepSize);
+            if (marks.ContainsKey(pos)) marks[pos] = color;
+            else marks.Add(pos, color);
         }
 
-        private void buttonBClicked(Button btn)
+        public void ClearMark(int pos)
         {
-            //scroll(target.ScrollStepSize);
+            //if (marks.ContainsKey(pos))
+                marks.Remove(pos);
         }
+
+        public void ClearMarks()
+        {
+            marks.Clear();
+        }
+        #endregion
 
         private void thumbClicked(Button btn)
         {
@@ -85,6 +114,26 @@ namespace Binmap.Controls
             ScrollPosition = Math.Min(Math.Max(0, target.MaxScrollValue - target.NumVisible), Math.Max(0, ScrollPosition));
             target.OnScroll(ScrollPosition);
             Layout();
+        }
+
+        public override void CustomDraw(SpriteBatch spriteBatch)
+        {
+            // draw marks
+            Rectangle rect = WorldTransform;
+            int x = rect.X + 1;
+            int y = rect.Y + buttonA.Transform.Height;
+
+            int availableHeight = Transform.Height - 2 * buttonA.Transform.Height;
+            int lastY = 0;
+            
+            foreach (KeyValuePair<int,Color> mark in marks)
+            {
+                int my = (int)Math.Round(availableHeight * (float)mark.Key / target.MaxScrollValue);
+                if (my == lastY) my -= 1;
+                if (my < 0) my = 0;
+                spriteBatch.Draw(Main.WhiteTexture, new Rectangle(x, y + my, Transform.Width - 2, 1), mark.Value);
+                lastY = my;
+            }
         }
 
         public override void Update(float time, float dTime)

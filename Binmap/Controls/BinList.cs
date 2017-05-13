@@ -105,7 +105,12 @@ namespace Binmap.Controls
 
         public void SetBinFormat(Bin.Formats format)
         {
-            foreach (Bin bin in Selection.Values) bin.Format = format;
+            foreach (Bin bin in Selection.Values)
+            {
+                bin.Format = format;
+                if (bin.LineBreak) scrollbar.SetMark(bin.Offset, bin.Color);
+            }
+
             if (Selection.Count > 0) Layout();
         }
 
@@ -185,7 +190,7 @@ namespace Binmap.Controls
             }
 
             scrollbar.Visible = items.Count != bins.Count;
-            scrollbar.Layout();
+            scrollbar.Layout();            
         }
 
         private void itemEnter(BinListItem item)
@@ -260,7 +265,7 @@ namespace Binmap.Controls
                         s[i] = (selBin.LineBreak ? Environment.NewLine : "") + selBin.Text;
                         i++;
                     }
-                    System.Windows.Forms.Clipboard.SetText(string.Join(",", s));
+                    System.Windows.Forms.Clipboard.SetText(string.Join(" ", s));
                     statusCallback("Copied " + i + " byte" + (i > 1 ? "s" : "") + " to clipboard.", 2);
                 }
                 else statusCallback("No bytes selected!", 1);
@@ -279,6 +284,7 @@ namespace Binmap.Controls
                 {
                     bin.LineBreak = true;
                     bin.Comment = "";
+                    scrollbar.SetMark(bin.Offset, bin.Color);
                     Layout();
                 }
 
@@ -292,6 +298,7 @@ namespace Binmap.Controls
                 {
                     bin.LineBreak = false;
                     bin.Comment = "";
+                    scrollbar.ClearMark(bin.Offset);
                     Layout();
                 }
 
@@ -343,13 +350,12 @@ namespace Binmap.Controls
             }
 
             Vector2 textSize = Main.DefaultFont.MeasureString(text);
-
             textSize.Y -= Main.DefaultFont == Main.FontL ? 6 : 4;
             
-            Rectangle rect = new Rectangle(Main.MouseState.Position.X + 10, Main.MouseState.Position.Y + 24, (int)textSize.X + 8, (int)textSize.Y + 8);
+            Rectangle rect = new Rectangle(Main.MouseState.Position.X + 10, Math.Min(Main.MouseState.Position.Y + 24, Transform.Y + Transform.Height - 4 - (int)textSize.Y), (int)textSize.X + 8, (int)textSize.Y + 8);
             spriteBatch.Draw(Main.WhiteTexture, rect, Color.FromNonPremultiplied(0, 0, 0, 160));
 
-            Vector2 textPos = new Vector2(Main.MouseState.Position.X + 14, Main.MouseState.Position.Y + 24);
+            Vector2 textPos = new Vector2(rect.X + 4, rect.Y);
             textPos.Y += Main.DefaultFont == Main.FontL ? 1 : 5;
 
             spriteBatch.DrawString(Main.DefaultFont, text, textPos, Color.Black);
@@ -373,6 +379,11 @@ namespace Binmap.Controls
             Layout();
         }
 
+        public void AddScrollbarMark(int pos, Color color)
+        {
+            scrollbar.SetMark(pos, color);
+        }
+
         #region item management
         public void Lock()
         {
@@ -392,7 +403,7 @@ namespace Binmap.Controls
             if (!layoutLocked) Layout();
         }
 
-        public void RemoveItem(Bin item)
+        public void RemoveItem(Bin item) //NOTE: never used in this application
         {
             bins.Remove(item);
             dirty = true;
@@ -404,6 +415,7 @@ namespace Binmap.Controls
             bins.Clear();
             dirty = true;
             deselectAll();
+            scrollbar.ClearMarks();
             scrollbar.ScrollTo(0);
         }
         #endregion

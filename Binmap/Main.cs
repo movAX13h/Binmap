@@ -45,7 +45,7 @@ namespace Binmap
             if (focusedControl != null) focusedControl.Focused = true;
         }
 
-        public static string Version = "1.2";
+        public static string Version = "1.3";
 
         Keys[] prevPressed;
         GraphicsDeviceManager graphics;
