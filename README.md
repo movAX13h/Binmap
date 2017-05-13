@@ -32,8 +32,7 @@ Binmap is a .NET application using XNA/MonoGame/SharpDX (Visual Studio Community
 The font in use is called [Pixel Operator](http://www.dafont.com/de/pixel-operator.font) and should be installed for compiling.
 
 ## Download
-Binmap currently is in development. Consider this repo a personal backup of my work on this project.
-Anyway, if you are interested, here is the latest version: [Binmap Release](https://github.com/movAX13h/Binmap/releases/latest)
+If you are interested in a release download, here is the latest version: [Binmap Release](https://github.com/movAX13h/Binmap/releases/latest)
 
 ### Todo
  - TextInput text range selection (mouse and keyboard)
@@ -41,7 +40,7 @@ Anyway, if you are interested, here is the latest version: [Binmap Release](http
  - view for multiple bytes combined as int, float, double, ...
 
 ### Changelog
- - v1.3
+ - v1.3 - 2017-05-13
    - marks on scrollbar indicating items with linebreak in the color of the item format
    - changed clipboard data from comma-separated to space-separated
    - cursor info panel position limit at the bottom
