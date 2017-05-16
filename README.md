@@ -14,7 +14,7 @@ data loaded, unformatted:
 
 data formatted and commented:
 
-![Binmap formatted and commented data](https://cloud.githubusercontent.com/assets/1974959/25872302/75fe61ac-350a-11e7-97af-12cbf29d1cf4.png)
+![Binmap formatted and commented data](https://cloud.githubusercontent.com/assets/1974959/26132012/a6eb02fa-3a9d-11e7-8ca5-6d78efa377de.png)
 
 
 ## How it works and what it does
@@ -35,7 +35,8 @@ The font in use is called [Pixel Operator](http://www.dafont.com/de/pixel-operat
 If you are interested in a release download, here is the latest version: [Binmap Release](https://github.com/movAX13h/Binmap/releases/latest)
 
 ### Todo
- - TextInput text range selection (mouse and keyboard)
+ - continue search with F3
+ - TextInput text range selection (mouse and keyboard), handle longer texts
  - Scrollbar track click
  - view for multiple bytes combined as int, float, double, ...
 

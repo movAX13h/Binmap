@@ -82,7 +82,7 @@ namespace Binmap.Screens
             valueInput.Visible = false;
             AddChild(valueInput);
 
-            valueInputTypeButton = new Button(15, 14, "D", Main.DecColor, typeButtonClicked, valueInput);
+            valueInputTypeButton = new Button(15, 14, "D", Main.DecColor, inputTypeSwitchClicked, valueInput);
             valueInputTypeButton.Font = Main.FontS;
             valueInputTypeButton.Transform.X = 57;
             valueInput.AddChild(valueInputTypeButton);
@@ -90,11 +90,12 @@ namespace Binmap.Screens
             // search inputs
             searchInput = new TextInput(10, 10, 56, 14);
             searchInput.TextColor = Main.HexColor;
+            searchInput.OnChangeCallback = searchChanged;
             searchInput.OnSubmitCallback = searchCommitted;
             searchInput.Visible = false;
             AddChild(searchInput);
 
-            searchInputTypeButton = new Button(15, 14, "H", Main.HexColor, typeButtonClicked, searchInput);
+            searchInputTypeButton = new Button(15, 14, "H", Main.HexColor, inputTypeSwitchClicked, searchInput);
             searchInputTypeButton.Font = Main.FontS;
             searchInputTypeButton.Transform.X = 57;
             searchInput.AddChild(searchInputTypeButton);
@@ -107,7 +108,7 @@ namespace Binmap.Screens
             gotoInput.Visible = false;
             AddChild(gotoInput);
 
-            gotoInputTypeButton = new Button(15, 14, "D", Main.DecColor, typeButtonClicked, gotoInput);
+            gotoInputTypeButton = new Button(15, 14, "D", Main.DecColor, inputTypeSwitchClicked, gotoInput);
             gotoInputTypeButton.Font = Main.FontS;
             gotoInputTypeButton.Transform.X = 57;
             gotoInput.AddChild(gotoInputTypeButton);
@@ -486,25 +487,6 @@ namespace Binmap.Screens
         }
 
         #region button handlers
-        private void typeButtonClicked(Button btn)
-        {
-            TextInput input = btn.Tag as TextInput;
-
-            if (btn.Text == "H")
-            {
-                btn.Text = "D";
-                btn.TextColor = Main.DecColor;
-                if (input.Text != "") input.Text = int.Parse(input.Text, NumberStyles.HexNumber, null).ToString();
-            }
-            else
-            {
-                btn.Text = "H";
-                btn.TextColor = Main.HexColor;
-                if (input.Text != "") input.Text = int.Parse(input.Text).ToString("X2");
-            }
-
-            input.TextColor = btn.TextColor;
-        }
 
         private int getIntValue(Button btn)
         {
@@ -526,7 +508,7 @@ namespace Binmap.Screens
         private void gotoInputChanged(IInput obj)
         {
             int i = getIntValue(gotoInputTypeButton);
-            gotoInput.FocusFrameColor = (i >= 0 && i < list.Bins.Count) ? Main.DecColor : Color.Red;
+            gotoInput.FocusFrameColor = (i >= 0 && i < list.Bins.Count) ? Main.TrackColor : Color.Red;
         }
 
         private void gotoCommitted(IInput input)
@@ -535,10 +517,54 @@ namespace Binmap.Screens
             if (i >= 0 && i < list.Bins.Count) list.ScrollTo(i);
         }
 
+        private byte[] getSearchQuery()
+        {
+            string text = searchInput.Text.Trim();
+
+            if (text == string.Empty) return null;
+
+            bool hex = searchInputTypeButton.Text == "H";
+            List<byte> bytes = new List<byte>();
+
+            string[] parts = text.Split(' ');
+            foreach (string part in parts)
+            {
+                text = part.Trim();
+                if (text.Length == 0) return null;
+
+                int value = -1;
+                if (hex)
+                {
+                    if (!int.TryParse(text, NumberStyles.HexNumber, null, out value) || value > 255) return null;
+                    else bytes.Add((byte)value);
+                }
+                else
+                {
+                    if (!int.TryParse(text, out value) || value > 255) return null;
+                    else bytes.Add((byte)value);
+                }
+            }
+
+            return bytes.ToArray();
+        }
+
+        private void searchChanged(IInput input)
+        {
+            byte[] query = getSearchQuery();
+            if (query == null) searchInput.FocusFrameColor = Color.Red;
+            else searchInput.FocusFrameColor = Main.TrackColor;
+        }
+
         private void searchCommitted(IInput input)
         {
-
-        }
+            byte[] query = getSearchQuery();
+            if (query != null)
+            {
+                int i = list.Search(query);
+                if (i >= 0) list.ScrollTo(i);
+                else showStatus("No match found for query '" + searchInput.Text + "'.", 2);
+            }
+        }        
 
         private void valueChanged(IInput input)
         {
@@ -552,6 +578,49 @@ namespace Binmap.Screens
                 valueInput.FocusFrameColor = Main.TrackColor;
             }
             else valueInput.FocusFrameColor = Color.Red;
+        }
+
+        private void inputTypeSwitchClicked(Button btn)
+        {
+            TextInput input = btn.Tag as TextInput;
+
+            NumberStyles oldStyle;
+            string format = "";
+
+            if (btn.Text == "H")
+            {
+                btn.TextColor = Main.DecColor;
+                oldStyle = NumberStyles.HexNumber;
+            }
+            else
+            {
+                btn.TextColor = Main.HexColor;
+                oldStyle = NumberStyles.Integer;
+                format = "X2";
+            }
+
+            if (input.Text != "")
+            {
+                if (input == searchInput) // special treatment for search input because it can have several values (space-separated)
+                {
+                    byte[] query = getSearchQuery();
+                    if (query != null)
+                    {
+                        List<string> bytes = new List<string>();
+                        foreach(byte b in query) bytes.Add(b.ToString(format));
+                        input.Text = string.Join(" ", bytes);
+                    }
+                }
+                else
+                {
+                    int i = -1;
+                    if (int.TryParse(input.Text, oldStyle, null, out i))
+                        input.Text = i.ToString(format);
+                }
+            }
+
+            input.TextColor = btn.TextColor;
+            btn.Text = btn.Text == "H" ? "D" : "H"; // do this here and not above because getSearchQuery relies on the text
         }
 
         private void writeButtonClicked(Button obj)

@@ -47,21 +47,8 @@ namespace Binmap.Controls
         public int MaxScrollValue { get { return bins.Count - 1; } }
         public int NumVisible { get { return items.Count; } }
 
-        public bool Focused
-        {
-            set
-            {
-                
-            }
-        }
-
-        public Action<IInput> OnChangeCallback
-        {
-            set
-            {
-                
-            }
-        }
+        public bool Focused { set { } }
+        public Action<IInput> OnChangeCallback { set { } }
         #endregion
 
         private bool dirty = false;
@@ -93,17 +80,6 @@ namespace Binmap.Controls
         protected override void OnMouseDown()
         {
             Main.SetFocus(this);
-        }
-
-        public void SetBinFormat(Bin.Formats format)
-        {
-            foreach (Bin bin in Selection.Values)
-            {
-                bin.Format = format;
-                if (bin.LineBreak) scrollbar.SetMark(bin.Offset, bin.Color);
-            }
-
-            if (Selection.Count > 0) Layout();
         }
 
         public void Layout()
@@ -365,6 +341,17 @@ namespace Binmap.Controls
             if (!layoutLocked) Layout();
         }
 
+        public void SetBinFormat(Bin.Formats format)
+        {
+            foreach (Bin bin in Selection.Values)
+            {
+                bin.Format = format;
+                if (bin.LineBreak) scrollbar.SetMark(bin.Offset, bin.Color);
+            }
+
+            if (Selection.Count > 0) Layout();
+        }
+
         public void ScrollTo(int targetPosition)
         {
             scrollbar.ScrollTo(targetPosition);
@@ -379,6 +366,24 @@ namespace Binmap.Controls
         public void AddScrollbarMark(int pos, Color color)
         {
             scrollbar.SetMark(pos, color);
+        }
+
+        public int Search(byte[] query, int offset = 0)
+        {
+            int end = bins.Count - query.Length;
+            int num = 0;
+
+            for (int i = offset; i < end; i++)
+            {
+                if (bins[i].Value == query[num])
+                {
+                    num++;
+                    if (num == query.Length) return i - query.Length + 1;
+                }
+                else num = 0;
+            }
+
+            return -1;
         }
 
         #region item management
