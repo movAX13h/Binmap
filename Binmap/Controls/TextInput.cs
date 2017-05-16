@@ -10,29 +10,17 @@ namespace Binmap.Controls
     {
         public string Text = "";
         private bool focused = false;
-        public bool Focused
-        {
-            set
-            {
-                focused = value;
-            }
-        }
-
+        public bool Focused { set { focused = value; } }
         public Color FocusFrameColor = Main.TrackColor;
+        public Color TextColor = Color.Yellow;
 
-        private Action<IInput> onChangeCallback = null;
-        public Action<IInput> OnChangeCallback
-        {
-            set
-            {
-                onChangeCallback = value;
-            }
-        }
+        public SpriteFont Font = Main.DefaultFont;
+
+        public Action<IInput> OnChangeCallback { private get; set; }
+        public Action<IInput> OnSubmitCallback { private get; set; }
 
         private int caretPosition = 0;
         private float caretTime = 0;
-
-        public Color TextColor = Color.Yellow;
 
         public TextInput(int x, int y, int w, int h) : base(x, y, w, h, Main.BackgroundColor)
         {
@@ -47,6 +35,8 @@ namespace Binmap.Controls
         
         public override void Update(float time, float dTime)
         {
+            if (!Visible) return;
+
             base.Update(time, dTime);
             caretTime += dTime;
         }
@@ -65,8 +55,8 @@ namespace Binmap.Controls
             // text
             int x = worldRect.X + 2;
             int y = worldRect.Y - 1;
-            if (Main.DefaultFont == Main.FontS) y += 4;
-            spriteBatch.DrawString(Main.DefaultFont, Text, new Vector2(x, y), TextColor);
+            if (Font == Main.FontS) y += 4;
+            spriteBatch.DrawString(Font, Text, new Vector2(x, y), TextColor);
 
             // caret
             if (caretPosition > Text.Length) caretPosition = Text.Length;
@@ -76,7 +66,7 @@ namespace Binmap.Controls
 
                 Vector2 textSize = Main.DefaultFont.MeasureString(left);
                 x += (int)Math.Round(textSize.X);
-                if (Main.DefaultFont == Main.FontL) y += 3;
+                if (Font == Main.FontL) y += 3;
                 else y -= 1;
 
                 spriteBatch.Draw(Main.WhiteTexture, new Rectangle(x, y, 1, Transform.Height - 4), Color.White);
@@ -130,52 +120,52 @@ namespace Binmap.Controls
                     if (!Main.KeyboardState.IsKeyDown(Keys.LeftShift) && !Main.KeyboardState.IsKeyDown(Keys.RightShift)) s = s.ToLower();
 
                     Text = left + s + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
                 case Keys.Space:
                     Text = left + " " + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
                 case Keys.Add:
                 case Keys.OemPlus:
                     Text = left + "+" + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
                 case Keys.Subtract:
                 case Keys.OemMinus:
                     Text = left + "-" + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
                 case Keys.Decimal:
                 case Keys.OemComma:
                     Text = left + "," + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
                 case Keys.OemPeriod:
                     Text = left + "." + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
                 case Keys.Multiply:
                     Text = left + "*" + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
                 case Keys.Divide:
                     Text = left + "/" + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
@@ -220,7 +210,7 @@ namespace Binmap.Controls
                     }
 
                     Text = left + s + right;
-                    onChangeCallback?.Invoke(this);
+                    OnChangeCallback?.Invoke(this);
                     caretPosition += 1;
                     break;
 
@@ -228,7 +218,7 @@ namespace Binmap.Controls
                     if (right.Length > 0)
                     {
                         Text = left + right.Substring(1);
-                        onChangeCallback?.Invoke(this);
+                        OnChangeCallback?.Invoke(this);
                     }
                     break;
 
@@ -236,12 +226,13 @@ namespace Binmap.Controls
                     if (left.Length > 0)
                     {
                         Text = left.Substring(0, left.Length - 1) + right;
-                        onChangeCallback?.Invoke(this);
+                        OnChangeCallback?.Invoke(this);
                         caretPosition -= 1;
                     }
                     break;
 
                 case Keys.Enter:
+                    OnSubmitCallback?.Invoke(this);
                     Main.SetFocus(null);
                     break;
                 

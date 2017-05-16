@@ -45,7 +45,7 @@ namespace Binmap
             if (focusedControl != null) focusedControl.Focused = true;
         }
 
-        public static string Version = "1.3";
+        public static string Version = "1.4";
 
         Keys[] prevPressed;
         GraphicsDeviceManager graphics;
@@ -138,7 +138,7 @@ namespace Binmap
                     else b = " (" + b + ")";
                 }
 
-                Window.Title = "Binmap " + Version + " - " + a + b;                
+                Window.Title = "Binmap " + Version + " - " + a + b + ", " + layouter.NumBytes + " bytes";
             }
             else Forms.MessageBox.Show(layouter.LastError, "Sorry!", Forms.MessageBoxButtons.OK, Forms.MessageBoxIcon.Error);
         }

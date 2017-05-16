@@ -85,7 +85,7 @@ namespace Binmap.Controls
         public void Layout()
         {
             int availableHeight = Transform.Height - 2 * buttonA.Transform.Height;
-            thumb.Resize(Transform.Width - 4, Math.Max(thumb.Transform.Width, Math.Min(availableHeight, availableHeight * target.NumVisible / target.MaxScrollValue)));
+            thumb.Resize(Transform.Width - 4, Math.Max(thumb.Transform.Width, Math.Min(availableHeight, availableHeight * target.NumVisible / Math.Max(1, target.MaxScrollValue))));
             availableHeight -= thumb.Transform.Height;
             float s = (float)ScrollPosition / (Math.Max(1, target.MaxScrollValue - target.NumVisible));
             thumb.Transform.Y = buttonA.Transform.Height + (int)Math.Round(availableHeight * s);

@@ -41,14 +41,6 @@ namespace Binmap.Controls
             }
         }
 
-        public int NumItems
-        {
-            get
-            {
-                return items.Count;
-            }
-        }
-
         #region IScrollbarTarget and IInput implementations
         Rectangle IScrollbarTarget.ScrollRectangle { get { return Transform; } }
         public int ScrollStepSize { get { return 100; } }
@@ -371,6 +363,11 @@ namespace Binmap.Controls
             base.Resize(w, h);
             scrollbar.Resize(14, h);
             if (!layoutLocked) Layout();
+        }
+
+        public void ScrollTo(int targetPosition)
+        {
+            scrollbar.ScrollTo(targetPosition);
         }
 
         public void OnScroll(int scrollPosition)

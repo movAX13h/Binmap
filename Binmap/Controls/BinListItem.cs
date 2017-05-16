@@ -107,6 +107,7 @@ namespace Binmap.Controls
                 commentInput.Transform.X = parentRect.Width - CommentColumnWidth - Transform.X + 2;
                 commentInput.Transform.Y = 0;
                 commentInput.Visible = true;
+                commentInput.Font = Main.DefaultFont;
             }
             else commentInput.Visible = false;
 

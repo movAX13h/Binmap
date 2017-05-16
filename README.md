@@ -40,6 +40,11 @@ If you are interested in a release download, here is the latest version: [Binmap
  - view for multiple bytes combined as int, float, double, ...
 
 ### Changelog
+ - v1.4 - 2017-05-16
+   - added goto address panel (scrolls list to address) with format switch (hex/dec)
+   - added search panel with format switch (hex/dec)
+   - added format switch to value editing panel (hex/dec)
+
  - v1.3 - 2017-05-13
    - marks on scrollbar indicating items with linebreak in the color of the item format
    - changed clipboard data from comma-separated to space-separated
@@ -55,7 +60,7 @@ If you are interested in a release download, here is the latest version: [Binmap
    - added byte and range info on mouse over
    - fixed window focus problem allowing click through other windows
    - fixed range selection in combination with scrolling
-   - changed: storing format as byte now (was int previously)
+   - storing format as byte now; was int before
    
  - v1.0 - 2017-05-08 
    - github release

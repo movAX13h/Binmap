@@ -2,10 +2,11 @@
 using Microsoft.Xna.Framework;
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Binmap.Controls
 {
-    class Button : Control
+    class Button : Control, IInput
     {
         public object Tag = null;
         private Action<Button> clickCallback;
@@ -18,6 +19,9 @@ namespace Binmap.Controls
 
         public SpriteFont Font = Main.FontL;
 
+        public bool Focused { set { } }
+        public Action<IInput> OnChangeCallback { set { } }
+
         public Button(int w, int h, string text, Color textColor, Action<Button> callback = null, object tag = null) : base(0, 0, w, h, Main.BorderColor)
         {
             MouseEnabled = true;
@@ -29,6 +33,7 @@ namespace Binmap.Controls
 
         protected override void OnMouseDown()
         {
+            Main.SetFocus(this);
             clickCallback?.Invoke(this);
         }
 
@@ -46,7 +51,18 @@ namespace Binmap.Controls
             rect.X += (int)Math.Floor((Transform.Width - size.X) / 2) + 1;
             rect.Y += (int)Math.Floor((Transform.Height - size.Y) / 2);
 
+            if (Font == Main.FontS)
+            {
+                rect.X -= 1;
+                rect.Y += 3;
+            }
+
             spriteBatch.DrawString(Font, Text, new Vector2(rect.X, rect.Y), TextColor);
+        }
+
+        public bool ProcessKey(Keys key)
+        {
+            throw new NotImplementedException();
         }
     }
 }
