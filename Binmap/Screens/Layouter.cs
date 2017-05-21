@@ -37,7 +37,7 @@ namespace Binmap.Screens
         private bool statusFadeOut = true;
         private float statusTime = 0;
 
-        private string usageText = "LMB: select/deselect, Shift+LMB: range selection, RMB: clear selection, ENTER: line break, BACKSPACE: remove line break";
+        private string usageText = "LMB: select/deselect, SHIFT+LMB: range select, RMB: clear selection, ENTER/BKSPC: add/remove line break, F3: search again";
         private string startText = "DROP FILE TO START";
 
         public string DataFilename { get; private set; } = string.Empty;
@@ -425,13 +425,13 @@ namespace Binmap.Screens
             {
                 Point center = new Point(list.Transform.X + list.Transform.Width / 2, list.Transform.Y + list.Transform.Height / 2);
 
-                color = Color.FromNonPremultiplied(255, 255, 255, 40);
+                color = Color.FromNonPremultiplied(255, 255, 255, 140);
                 spriteBatch.Draw(Main.Logo, new Rectangle(center.X - Main.Logo.Width, center.Y - Main.Logo.Height * 2 + 50, Main.Logo.Width * 2, Main.Logo.Height * 2), color);
 
                 Vector2 size = Main.FontL.MeasureString(startText);
                 spriteBatch.DrawString(Main.FontL, startText, 
                     new Vector2((float)Math.Floor(center.X - size.X / 2f), (float)Math.Floor(center.Y - size.Y / 2f) + 70), 
-                    Main.BorderColor);
+                    Main.TrackColor);
             }
 
             // write button position and visibility
@@ -558,12 +558,7 @@ namespace Binmap.Screens
         private void searchCommitted(IInput input)
         {
             byte[] query = getSearchQuery();
-            if (query != null)
-            {
-                int i = list.Search(query);
-                if (i >= 0) list.ScrollTo(i);
-                else showStatus("No match found for query '" + searchInput.Text + "'.", 2);
-            }
+            if (query != null) list.Search(query);
         }        
 
         private void valueChanged(IInput input)

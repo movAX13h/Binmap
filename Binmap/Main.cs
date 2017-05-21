@@ -22,6 +22,7 @@ namespace Binmap
         public static SpriteFont FontL;
 
         public static Texture2D Logo;
+        public static Effect IntroShader;
 
         public static Color BackgroundColor = Color.FromNonPremultiplied(45, 45, 48, 255);
         public static Color PanelColor = Color.FromNonPremultiplied(30, 30, 30, 255);
@@ -45,7 +46,7 @@ namespace Binmap
             if (focusedControl != null) focusedControl.Focused = true;
         }
 
-        public static string Version = "1.4";
+        public static string Version = "1.5";
 
         Keys[] prevPressed;
         GraphicsDeviceManager graphics;
@@ -88,7 +89,7 @@ namespace Binmap
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             WhiteTexture = new Texture2D(GraphicsDevice, 10, 10, false, SurfaceFormat.Color);
-
+            
             FontS = Content.Load<SpriteFont>("Fonts/Font1");
             FontS.LineSpacing = 12;
 
@@ -96,6 +97,8 @@ namespace Binmap
             FontL.LineSpacing = 14;
 
             Logo = Content.Load<Texture2D>("Logo");
+
+            IntroShader = Content.Load<Effect>("Shaders/Intro");
 
             DefaultFont = FontL;
 

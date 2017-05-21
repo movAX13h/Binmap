@@ -1,14 +1,15 @@
 # ![Binmap Logo](https://cloud.githubusercontent.com/assets/1974959/25785795/2718aaf2-3389-11e7-9078-fbf5b20801bf.png) Binmap
 
-A tool that helps to analyse and document binary data file formats. It also allows to edit values and write back changes.
+A tool that helps to analyse and document binary data files/formats. It can also be used to edit values and write back changes, just like a regular hex-editor but does not allow to insert or delete bytes.
+All UI controls of this application are custom-made for fast rendering and style.
 
 ## Screenshots
 
 start screen:
 
-![Binmap start screen](https://cloud.githubusercontent.com/assets/1974959/25785729/f80b0ab2-3387-11e7-8a06-2a2b3fe750a1.png)
+![Binmap start screen](https://cloud.githubusercontent.com/assets/1974959/26288049/e2834f54-3e88-11e7-9d82-d5850e95cee0.png)
 
-data loaded, unformatted:
+data loaded, unformatted; all bytes are formatted in hex by default:
 
 ![Binmap unformatted data](https://cloud.githubusercontent.com/assets/1974959/25785754/6fac491e-3388-11e7-9d53-cf7eb44e84da.png)
 
@@ -35,12 +36,15 @@ The font in use is called [Pixel Operator](http://www.dafont.com/de/pixel-operat
 If you are interested in a release download, here is the latest public release (might be some subversions behind): [Binmap Release](https://github.com/movAX13h/Binmap/releases/latest)
 
 ### Todo
- - continue search with F3
  - TextInput text range selection (mouse and keyboard), handle longer texts
  - Scrollbar track click
  - view for multiple bytes combined as int, float, double, ...
 
 ### Changelog
+ - v1.5 - 2017-05-22
+   - F3 to repeat search (scrolls to next result till end of file is reached)
+   - welcome screen shader
+
  - v1.4 - 2017-05-16
    - added goto address panel (scrolls list to address) with format switch (hex/dec)
    - added search panel with format switch (hex/dec)

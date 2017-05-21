@@ -37,3 +37,9 @@
 /processorParam:TextureFormat=Color
 /build:Logo.png
 
+#begin Shaders/Intro.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/Intro.fx
+

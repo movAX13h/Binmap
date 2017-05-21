@@ -62,6 +62,11 @@ namespace Binmap.Controls
         private Action<BinListItem> itemSelectedCallback;
         private BinListItem overItem = null;
 
+        private float currentTime = 0;
+        private bool f3KeyWasDown = false;
+        private byte[] lastSearchQuery;
+        private int lastSearchResult = 0;
+
         public BinList(int x, int y, int w, int h, Action<BinListItem> itemSelectedCallback, Action<string, float> statusCallback) : base(x, y, w, h, Main.BorderColor)
         {
             this.statusCallback = statusCallback;
@@ -279,7 +284,20 @@ namespace Binmap.Controls
         public override void Update(float time, float dTime)
         {
             base.Update(time, dTime);
-            
+
+            currentTime = time;
+
+            // continue search (do this here so it does not require control focus)
+            if (Main.KeyboardState.IsKeyDown(Keys.F3))
+            {
+                f3KeyWasDown = true;
+            }
+            else
+            {
+                if (f3KeyWasDown && lastSearchQuery != null) Search(lastSearchQuery, lastSearchResult + 1);
+                f3KeyWasDown = false;
+            }
+
             // clear selection
             if (MouseIsOver && Main.MouseState.RightButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
             {
@@ -291,12 +309,30 @@ namespace Binmap.Controls
         public override void CustomDraw(SpriteBatch spriteBatch)
         {
             Rectangle rect = WorldTransform;
+            Rectangle innerRect = new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2);
 
-            // background
-            spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2), Main.PanelColor);
+            if (bins.Count > 0)
+            {
+                // background
+                spriteBatch.Draw(Main.WhiteTexture, innerRect, Main.PanelColor); 
 
-            // vertical separator line for comments column
-            if (bins.Count > 0) spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + rect.Width - commentColumnWidth, rect.Y + 2, 1, rect.Height - 4), Main.BorderColor);
+                // vertical separator line for comments column
+                spriteBatch.Draw(Main.WhiteTexture, new Rectangle(rect.X + rect.Width - commentColumnWidth, rect.Y + 2, 1, rect.Height - 4), Main.BorderColor);
+            }
+            else
+            {
+                // special shader for background when empty
+                spriteBatch.End();
+                
+                Main.IntroShader.Parameters["Size"].SetValue(new Vector2(innerRect.Width, innerRect.Height));
+                Main.IntroShader.Parameters["Time"].SetValue(currentTime);
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, Main.IntroShader);
+                spriteBatch.Draw(Main.WhiteTexture, innerRect, Main.PanelColor);
+                spriteBatch.End();
+
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+                return;
+            }
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -370,18 +406,30 @@ namespace Binmap.Controls
 
         public int Search(byte[] query, int offset = 0)
         {
+            lastSearchQuery = query;
+
             int end = bins.Count - query.Length;
             int num = 0;
+            string text = "";
+            foreach (byte b in query) text += b.ToString("X2") + " ";
 
             for (int i = offset; i < end; i++)
             {
                 if (bins[i].Value == query[num])
                 {
                     num++;
-                    if (num == query.Length) return i - query.Length + 1;
+                    if (num == query.Length)
+                    {
+                        lastSearchResult = i - query.Length + 1;
+                        ScrollTo(lastSearchResult);
+                        return lastSearchResult;
+                    }
                 }
                 else num = 0;
             }
+
+            if (offset > 0) statusCallback("Search reached the end.", 1);
+            else statusCallback("No match found for query '" + text + "'.", 2);
 
             return -1;
         }
@@ -415,6 +463,8 @@ namespace Binmap.Controls
         public void Clear()
         {
             bins.Clear();
+            lastSearchQuery = null;
+            lastSearchResult = 0;
             dirty = true;
             deselectAll();
             scrollbar.ClearMarks();
