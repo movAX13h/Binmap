@@ -1,4 +1,4 @@
-# ![Binmap Logo](https://cloud.githubusercontent.com/assets/1974959/25785795/2718aaf2-3389-11e7-9078-fbf5b20801bf.png) Binmap
+# ![Binmap Logo](https://cloud.githubusercontent.com/assets/1974959/25785795/2718aaf2-3389-11e7-9078-fbf5b20801bf.png) Binmap (experimental)
 
 A tool that helps to analyse and document binary data files/formats. It can also be used to edit values and write back changes, just like a regular hex-editor but does not allow to insert or delete bytes.
 All UI controls of this application are custom-made for fast rendering and style.
